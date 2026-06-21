@@ -264,9 +264,16 @@ productGrid?.addEventListener(
 
     try {
     const product = JSON.parse(
-  decodeURIComponent(escape(atob(btn.dataset.product)))
+  decodeURIComponent(
+    atob(btn.dataset.product)
+      .split('')
+      .map(c =>
+        '%' +
+        ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+      )
+      .join('')
+  )
 );
-
       openModal(product);
     } catch (err) {
       console.error(
