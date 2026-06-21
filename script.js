@@ -249,44 +249,23 @@ document.addEventListener(
   }
 );
 
-// =============================
+
 // CLICK PRODUIT
 // =============================
-productGrid?.addEventListener(
-  "click",
-  e => {
-    const btn =
-      e.target.closest(
-        "button[data-product]"
-      );
+ productGrid?.addEventListener("click", e => {
+  const btn = e.target.closest("button[data-product]");
+  if (!btn) return;
 
-    if (!btn) return;
+  try {
+    const product = JSON.parse(
+      decodeURIComponent(escape(atob(btn.dataset.product)))
+    );
 
-    try {
-  productGrid?.addEventListener(
-  "click",
-  e => {
-    const btn = e.target.closest("button[data-product]");
-
-    if (!btn) return;
-
-    try {
-      const product = JSON.parse(btn.dataset.product);
-      openModal(product);
-    } catch (err) {
-      console.error("Erreur lecture produit", err);
-    }
+    openModal(product);
+  } catch (err) {
+    console.error("Erreur lecture produit", err);
   }
-);
-      openModal(product);
-    } catch (err) {
-      console.error(
-        "Erreur lecture produit",
-        err
-      );
-    }
-  }
-);
+});
 
 // =============================
 // AJOUT PANIER
@@ -462,7 +441,7 @@ async function loadProducts() {
         </p>
 
         <button
-          data-product='${JSON.stringify(product)}'
+          data-product="${btoa(unescape(encodeURIComponent(JSON.stringify(product))))}"
         >
           Voir détails
         </button>
