@@ -263,9 +263,9 @@ productGrid?.addEventListener(
     if (!btn) return;
 
     try {
-      const product = JSON.parse(
-        btn.dataset.product
-      );
+    const product = JSON.parse(
+  decodeURIComponent(escape(atob(btn.dataset.product)))
+);
 
       openModal(product);
     } catch (err) {
@@ -451,9 +451,7 @@ async function loadProducts() {
         </p>
 
         <button
-          data-product='${JSON.stringify(
-            product
-          )}'
+          data-product="${btoa(unescape(encodeURIComponent(JSON.stringify(product))))}"
         >
           Voir détails
         </button>
