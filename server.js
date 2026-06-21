@@ -5,7 +5,7 @@ import cors from "cors";
 import OpenAI from "openai";
 import compression from "compression";
 
-import Product from "./models/Product.js";
+
 
 dotenv.config();
 
@@ -35,15 +35,6 @@ const openai =
 // MONGO
 // ====================
 let mongoConnected = false;
-
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => {
-    mongoConnected = true;
-    console.log("✅ MongoDB connecté");
-  })
-  .catch(() => console.log("⚠️ MongoDB offline"));
-
 // ====================
 // DEFAULT PRODUCTS SAFE (FIX COMPLET)
 // ====================
@@ -154,10 +145,7 @@ function normalizeProduct(p) {
 // ====================
 app.get("/products", async (req, res) => {
   try {
-    let products = mongoConnected
-      ? await Product.find({}).lean()
-      : defaultProducts;
-
+    let products = defaultProducts;
     products = products.map(normalizeProduct);
 
     res.json(products);
@@ -171,9 +159,9 @@ app.get("/products", async (req, res) => {
 // ====================
 app.get("/products/:id", async (req, res) => {
   try {
-    let product = mongoConnected
-      ? await Product.findById(req.params.id).lean()
-      : defaultProducts.find(p => p._id === req.params.id);
+     let product = defaultProducts.find(
+  p => p._id === req.params.id
+);
 
     if (!product) {
       return res.status(404).json({ error: "Produit introuvable" });
@@ -196,9 +184,7 @@ app.post("/chat", async (req, res) => {
       return res.status(400).json({ error: "Message vide" });
     }
 
-    let products = mongoConnected
-      ? await Product.find({}).limit(10).lean()
-      : defaultProducts;
+     let products = defaultProducts;
 
     products = products.map(normalizeProduct);
 
