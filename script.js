@@ -263,9 +263,7 @@ productGrid?.addEventListener(
     if (!btn) return;
 
     try {
-    const product = JSON.parse(
-  decodeURIComponent(
-    atob(btn.dataset.product)
+   const product = JSON.parse(btn.dataset.product);
       .split('')
       .map(c =>
         '%' +
@@ -458,7 +456,7 @@ async function loadProducts() {
         </p>
 
         <button
-          data-product="${btoa(unescape(encodeURIComponent(JSON.stringify(product))))}"
+          data-product='${JSON.stringify(product)}'
         >
           Voir détails
         </button>
