@@ -31,11 +31,11 @@ const sendChatBtn = document.getElementById("sendChatBtn");
 const chatContainer = document.getElementById("chatContainer");
 const openChatBtn = document.getElementById("openChatBtn");
 const closeChatBtn = document.getElementById("closeChatBtn");
-window.mprApiBaseUrl =
-  window.mprApiBaseUrl ||
-  (window.location.protocol === "file:" || window.location.port !== "3001"
-    ? "http://localhost:3001"
-    : "");
+ const isLocal = window.location.hostname === "localhost";
+
+window.mprApiBaseUrl = isLocal
+  ? "http://localhost:3001"
+  : "https://mpr-services-r7ls.vercel.app";
 
 // =============================
 // STATE
