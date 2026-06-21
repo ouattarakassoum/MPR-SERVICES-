@@ -5,8 +5,6 @@ import cors from "cors";
 import OpenAI from "openai";
 import compression from "compression";
 
-
-
 dotenv.config();
 
 const app = express();
