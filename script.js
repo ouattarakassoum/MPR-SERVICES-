@@ -1,4 +1,4 @@
-   // =============================
+  // =============================
 // DOM
 // =============================
 const productGrid = document.getElementById("productList");
@@ -31,85 +31,78 @@ const sendChatBtn = document.getElementById("sendChatBtn");
 const chatContainer = document.getElementById("chatContainer");
 const openChatBtn = document.getElementById("openChatBtn");
 const closeChatBtn = document.getElementById("closeChatBtn");
- const isLocal = window.location.hostname === "localhost";
+
+const isLocal = window.location.hostname === "localhost";
 
 window.mprApiBaseUrl = isLocal
   ? "http://localhost:3001"
   : "https://mpr-services-r7ls.vercel.app";
 
 // =============================
+// BASE64 UTF-8 SAFE
+// =============================
+function encodeBase64(obj) {
+  return btoa(
+    encodeURIComponent(JSON.stringify(obj))
+      .replace(/%([0-9A-F]{2})/g, (_, p1) =>
+        String.fromCharCode("0x" + p1)
+      )
+  );
+}
+
+function decodeBase64(str) {
+  return JSON.parse(
+    decodeURIComponent(
+      atob(str)
+        .split("")
+        .map(c =>
+          "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2)
+        )
+        .join("")
+    )
+  );
+}
+
+// =============================
 // STATE
 // =============================
 let cart = JSON.parse(localStorage.getItem("cart") || "[]");
 let selectedProduct = null;
-let chatHistory = JSON.parse(
-  localStorage.getItem("chatHistory") || "[]"
-);
+let chatHistory = JSON.parse(localStorage.getItem("chatHistory") || "[]");
 
 // =============================
 // UTILITIES
 // =============================
 function formatPrice(price) {
   const n = Number(price);
-  return Number.isFinite(n)
-    ? n.toLocaleString("fr-FR")
-    : "0";
+  return Number.isFinite(n) ? n.toLocaleString("fr-FR") : "0";
 }
 
 function getProductImagePath(image) {
-  if (!image) {
-    return "images/Catalogur Bosch.png";
-  }
+  if (!image) return "images/Catalogur Bosch.png";
 
   if (
     image.startsWith("http://") ||
     image.startsWith("https://") ||
     image.startsWith("images/")
-  ) {
-    return image;
-  }
+  ) return image;
 
-  if (image.startsWith("/images/")) {
-    return image.slice(1);
-  }
+  if (image.startsWith("/images/")) return image.slice(1);
 
   return `images/${image}`;
 }
 
 function saveCart() {
-  localStorage.setItem(
-    "cart",
-    JSON.stringify(cart)
-  );
+  localStorage.setItem("cart", JSON.stringify(cart));
 }
 
 function saveChat() {
-  localStorage.setItem(
-    "chatHistory",
-    JSON.stringify(chatHistory)
-  );
+  localStorage.setItem("chatHistory", JSON.stringify(chatHistory));
 }
 
-async function fetchJson(url, options = {}, timeoutMs = 10000) {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
-
-  try {
-    const response = await fetch(url, {
-      ...options,
-      signal: controller.signal
-    });
-
-    if (!response.ok) {
-      throw new Error(`Erreur ${response.status}`);
-    }
-
-    return response.json();
-  } finally {
-    clearTimeout(timeoutId);
-  }
-}
-
+// =============================
+// CHAT UI
+// =============================
 function openChat() {
   chatContainer?.classList.add("active");
   chatContainer?.classList.remove("minimized");
@@ -136,28 +129,20 @@ function renderCart() {
   cartContainer.innerHTML = "";
 
   if (cart.length === 0) {
-    cartContainer.innerHTML =
-      "<p>Panier vide</p>";
+    cartContainer.innerHTML = "<p>Panier vide</p>";
     return;
   }
 
   cart.forEach((item, index) => {
     const div = document.createElement("div");
-
     div.className = "cart-item";
 
     div.innerHTML = `
       <div>
         <strong>${item.name}</strong><br>
-        <small>
-          ${item.quantity} ×
-          ${formatPrice(item.price)} FCFA
-        </small>
+        <small>${item.quantity} × ${formatPrice(item.price)} FCFA</small>
       </div>
-
-      <button class="remove-cart">
-        ✕
-      </button>
+      <button class="remove-cart">✕</button>
     `;
 
     div.querySelector("button").onclick = () => {
@@ -170,15 +155,8 @@ function renderCart() {
   });
 }
 
-function addToCart(
-  id,
-  name,
-  price,
-  image
-) {
-  const existing = cart.find(
-    p => p._id === id
-  );
+function addToCart(id, name, price, image) {
+  const existing = cart.find(p => p._id === id);
 
   if (existing) {
     existing.quantity++;
@@ -201,66 +179,41 @@ function addToCart(
 // =============================
 function openModal(product) {
   selectedProduct = product;
-
   if (!modal) return;
 
-  if (aiProductName) {
-    aiProductName.textContent =
-      product.name || "Produit";
-  }
-
-  if (aiImage) {
-    aiImage.src =
-      getProductImagePath(product.image);
-  }
+  if (aiProductName) aiProductName.textContent = product.name || "Produit";
+  if (aiImage) aiImage.src = getProductImagePath(product.image);
 
   modal.style.display = "flex";
 }
 
 function closeProductModal() {
   if (!modal) return;
-
   modal.style.display = "none";
 }
 
 window.openProductModal = openModal;
 window.addProductToCart = addToCart;
 
-closeModal?.addEventListener(
-  "click",
-  closeProductModal
-);
+closeModal?.addEventListener("click", closeProductModal);
 
-modal?.addEventListener(
-  "click",
-  e => {
-    if (e.target === modal) {
-      closeProductModal();
-    }
-  }
-);
+modal?.addEventListener("click", e => {
+  if (e.target === modal) closeProductModal();
+});
 
-document.addEventListener(
-  "keydown",
-  e => {
-    if (e.key === "Escape") {
-      closeProductModal();
-    }
-  }
-);
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") closeProductModal();
+});
 
-
-// CLICK PRODUIT
 // =============================
- productGrid?.addEventListener("click", e => {
+// PRODUITS CLICK
+// =============================
+productGrid?.addEventListener("click", e => {
   const btn = e.target.closest("button[data-product]");
   if (!btn) return;
 
   try {
-    const product = JSON.parse(
-      decodeURIComponent(escape(atob(btn.dataset.product)))
-    );
-
+    const product = decodeBase64(btn.dataset.product);
     openModal(product);
   } catch (err) {
     console.error("Erreur lecture produit", err);
@@ -270,179 +223,106 @@ document.addEventListener(
 // =============================
 // AJOUT PANIER
 // =============================
-addCartBtn?.addEventListener(
-  "click",
-  () => {
-    if (!selectedProduct) return;
+addCartBtn?.addEventListener("click", () => {
+  if (!selectedProduct) return;
 
-    addToCart(
-      selectedProduct._id,
-      selectedProduct.name,
-      selectedProduct.price,
-      selectedProduct.image
-    );
+  addToCart(
+    selectedProduct._id,
+    selectedProduct.name,
+    selectedProduct.price,
+    selectedProduct.image
+  );
 
-    closeProductModal();
-  }
-);
+  closeProductModal();
+});
 
 // =============================
 // CHAT
 // =============================
 function appendChat(type, text) {
-  if (!chatBox) return null;
+  if (!chatBox) return;
 
-  const div =
-    document.createElement("div");
-
+  const div = document.createElement("div");
   div.className = `chat ${type}`;
   div.textContent = text;
 
   chatBox.appendChild(div);
-
-  chatBox.scrollTop =
-    chatBox.scrollHeight;
+  chatBox.scrollTop = chatBox.scrollHeight;
 
   return div;
 }
 
 async function sendMessage() {
-  const message =
-    chatInput?.value.trim();
-
+  const message = chatInput?.value.trim();
   if (!message) return;
 
   appendChat("user", message);
 
-  chatHistory.push({
-    type: "user",
-    text: message
-  });
-
+  chatHistory.push({ type: "user", text: message });
   saveChat();
 
   chatInput.value = "";
 
-  const loading =
-    appendChat("ia", "⏳ ...");
+  const loading = appendChat("ia", "⏳ ...");
 
   try {
-    const res = await fetch(
-      `${window.mprApiBaseUrl}/chat`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type":
-            "application/json"
-        },
-        body: JSON.stringify({
-          message
-        })
-      }
-    );
+    const res = await fetch(`${window.mprApiBaseUrl}/chat`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message })
+    });
 
-    if (!res.ok) {
-      throw new Error(
-        `Erreur ${res.status}`
-      );
-    }
+    if (!res.ok) throw new Error(`Erreur ${res.status}`);
 
-    const data =
-      await res.json();
+    const data = await res.json();
 
     loading?.remove();
 
-    const reply =
-      data.reply ||
-      "Aucune réponse";
+    const reply = data.reply || "Aucune réponse";
 
     appendChat("ia", reply);
 
-    chatHistory.push({
-      type: "ia",
-      text: reply
-    });
-
+    chatHistory.push({ type: "ia", text: reply });
     saveChat();
   } catch (err) {
     console.error(err);
-
     loading?.remove();
-
-    appendChat(
-      "error",
-      "Erreur connexion serveur"
-    );
+    appendChat("error", "Erreur connexion serveur");
   }
 }
 
-sendChatBtn?.addEventListener(
-  "click",
-  sendMessage
-);
+sendChatBtn?.addEventListener("click", sendMessage);
 
-chatInput?.addEventListener(
-  "keypress",
-  e => {
-    if (e.key === "Enter") {
-      sendMessage();
-    }
-  }
-);
+chatInput?.addEventListener("keydown", e => {
+  if (e.key === "Enter") sendMessage();
+});
 
 // =============================
-// CHARGEMENT PRODUITS
+// PRODUITS LOAD
 // =============================
 async function loadProducts() {
   if (!productGrid) return;
   if (window.productPageHandlesProducts) return;
 
   try {
-    productGrid.innerHTML =
-      "<p>Chargement des produits...</p>";
+    productGrid.innerHTML = "<p>Chargement des produits...</p>";
 
-    const res = await fetch(
-      `${window.mprApiBaseUrl}/products`
-    );
+    const res = await fetch(`${window.mprApiBaseUrl}/products`);
+    if (!res.ok) throw new Error("Erreur serveur");
 
-    if (!res.ok) {
-      throw new Error(
-        "Erreur serveur"
-      );
-    }
-
-    const products =
-      await res.json();
+    const products = await res.json();
 
     productGrid.innerHTML = "";
 
     products.forEach(product => {
-      const card =
-        document.createElement(
-          "div"
-        );
-
-      card.className =
-        "product-card";
+      const card = document.createElement("div");
+      card.className = "product-card";
 
       card.innerHTML = `
-        <img
-          src="${getProductImagePath(product.image)}"
-          alt="${product.name}"
-          loading="lazy"
-        >
-
+        <img src="${getProductImagePath(product.image)}" alt="${product.name}" loading="lazy">
         <h3>${product.name}</h3>
-
-        <p>
-          ${formatPrice(
-            product.price || 0
-          )} FCFA
-        </p>
-
-        <button
-          data-product="${btoa(unescape(encodeURIComponent(JSON.stringify(product))))}"
-        >
+        <p>${formatPrice(product.price || 0)} FCFA</p>
+        <button data-product="${encodeBase64(product)}">
           Voir détails
         </button>
       `;
@@ -463,34 +343,17 @@ async function loadProducts() {
 // =============================
 // INIT
 // =============================
-document.addEventListener(
-  "DOMContentLoaded",
-  async () => {
-    try {
-      renderCart();
+document.addEventListener("DOMContentLoaded", async () => {
+  try {
+    renderCart();
+    await loadProducts();
 
-      await loadProducts();
+    chatHistory.forEach(msg => appendChat(msg.type, msg.text));
 
-      chatHistory.forEach(msg => {
-        appendChat(
-          msg.type,
-          msg.text
-        );
-      });
-
-      if (
-        chatHistory.length === 0
-      ) {
-        appendChat(
-          "ia",
-          "Bienvenue chez MPR SERVICES 👋"
-        );
-      }
-    } catch (err) {
-      console.error(
-        "Erreur init :",
-        err
-      );
+    if (chatHistory.length === 0) {
+      appendChat("ia", "Bienvenue chez MPR SERVICES 👋");
     }
+  } catch (err) {
+    console.error("Erreur init :", err);
   }
-);
+});
