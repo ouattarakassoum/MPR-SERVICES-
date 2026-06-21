@@ -1,0 +1,54 @@
+{
+   "name": "mpr-bosch",
+   "version": "1.0.0",
+   "description": "Site interactif MPR Bosch avec chat IA, gestion de produits, panier et paiement mobile",
+   "main": "server.js",
+   "type": "module",
+   "scripts": {
+      "start": "node server.js",
+      "dev": "nodemon server.js",
+      "lint": "eslint .",
+      "test": "echo \"No test specified\" && exit 0",
+      "test:performance": "node test-performance.js"
+   },
+   "keywords": [
+      "bosch",
+      "mpr",
+      "node",
+      "express",
+      "mongodb",
+      "openai",
+      "ecommerce",
+      "shop",
+      "chatbot",
+      "auto"
+   ],
+   "author": "TonNom",
+   "license": "MIT",
+   "dependencies": {
+      "bcryptjs": "^3.0.3",
+      "compression": "^1.8.1",
+      "cors": "^2.8.6",
+      "dotenv": "^17.3.1",
+      "express": "^4.18.2",
+      "jsonwebtoken": "^9.0.3",
+      "mongodb": "^7.1.0",
+      "mongoose": "^9.2.3",
+      "openai": "^6.22.0"
+   },
+   "devDependencies": {
+      "eslint": "^8.47.0",
+      "nodemon": "^3.0.1"
+   },
+   "engines": {
+      "node": ">=18.0.0"
+   },
+   "repository": {
+      "type": "git",
+      "url": "https://github.com/tonusername/mpr-bosch.git"
+   },
+   "bugs": {
+      "url": "https://github.com/tonusername/mpr-bosch/issues"
+   },
+   "homepage": "https://github.com/tonusername/mpr-bosch#readme"
+}
